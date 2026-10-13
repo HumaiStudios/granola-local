@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Granola Local</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Granola <em>Local</em></span>
+      </div>
+      <button id="new-meeting" class="btn btn-primary btn-block" title="New meeting (Ctrl+N)">
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        New meeting
+      </button>
+      <div class="search">
+        <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><circle cx="9" cy="9" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M13.2 13.2 17 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <input id="search" type="search" placeholder="Search notes  (Ctrl+K)" autocomplete="off" />
+      </div>
+      <nav id="meeting-list" class="meeting-list" aria-label="Meetings"></nav>
+      <div class="sidebar-foot">
+        <button id="ask-all" class="foot-btn" title="Ask across all your meetings">
+          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h7A2.5 2.5 0 0 1 16 5.5v5a2.5 2.5 0 0 1-2.5 2.5H9l-3.5 3v-3A2.5 2.5 0 0 1 4 10.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          Ask all meetings
+        </button>
+        <div class="foot-row">
+          <button id="open-folder" class="foot-btn" title="Open notes folder">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H8l1.5 2h6A1.5 1.5 0 0 1 17 8.5v6a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 3 14.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            Folder
+          </button>
+          <button id="open-settings" class="foot-btn" title="Settings">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="10" cy="10" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Settings
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <div id="key-banner" class="banner" hidden>
+        <span>Add your OpenAI API key to enable transcription and AI notes. It's stored in your system credential manager, never in your notes.</span>
+        <button class="btn btn-small" data-open-settings>Add key</button>
+      </div>
+
+      <section id="empty" class="empty">
+        <div class="empty-inner">
+          <div class="empty-mark" aria-hidden="true"></div>
+          <h1>Notes that stay on your machine.</h1>
+          <p>Start a meeting, jot what matters, and let AI fill in the rest from the transcript. Every meeting is a plain markdown file in <button id="empty-folder" class="link"></button>.</p>
+          <button id="empty-start" class="btn btn-record btn-large">
+            <span class="rec-dot" aria-hidden="true"></span> Start a meeting
+          </button>
+          <p class="hint">Ctrl+N new meeting · Ctrl+K search · Ctrl+Enter generate notes</p>
+        </div>
+      </section>
+
+      <section id="editor" class="editor" hidden>
+        <header class="doc-head">
+          <input id="title" class="title" placeholder="Untitled meeting" autocomplete="off" />
+          <div class="meta">
+            <span id="meta-date"></span>
+            <span id="meta-duration" class="meta-pill" hidden></span>
+            <label class="attendees">
+              <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><circle cx="8" cy="7" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M2.5 16a5.5 5.5 0 0 1 11 0M13 4.5a3 3 0 0 1 0 5.5M15 12.5a5 5 0 0 1 2.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              <input id="attendees" placeholder="Add attendees" autocomplete="off" />
+            </label>
+            <span class="spacer"></span>
+            <span id="save-state" class="save-state"></span>
+            <div class="menu-wrap">
+              <button id="doc-menu-btn" class="icon-btn" title="More" aria-haspopup="true">
+                <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="4.5" cy="10" r="1.5" fill="currentColor"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/><circle cx="15.5" cy="10" r="1.5" fill="currentColor"/></svg>
+              </button>
+              <div id="doc-menu" class="menu" hidden>
+                <button data-action="reveal">Show file in folder</button>
+                <button data-action="copy">Copy notes as markdown</button>
+                <button data-action="delete" class="danger">Move to trash</button>
+              </div>
+            </div>
+          </div>
+          <div class="tabs" role="tablist">
+            <button class="tab active" data-tab="mine" role="tab">My notes</button>
+            <button class="tab" data-tab="ai" role="tab">AI notes <span id="ai-dot" class="dot" hidden></span></button>
+            <span class="spacer"></span>
+            <button id="toggle-transcript" class="tab tab-ghost" title="Show transcript">
+              <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><path d="M4 5h12M4 9h12M4 13h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              Transcript <span id="transcript-count" class="count"></span>
+            </button>
+          </div>
+        </header>
+
+        <div class="doc-body">
+          <div class="pane pane-mine">
+            <textarea id="my-notes" class="notes-input" placeholder="Write notes as the meeting happens — short and messy is fine. Markdown works.&#10;&#10;When you're done, hit Generate notes and AI will flesh them out from the transcript."></textarea>
+          </div>
+          <div class="pane pane-ai" hidden>
+            <div class="ai-toolbar">
+              <span id="ai-template-label" class="muted"></span>
+              <span class="spacer"></span>
+              <button id="ai-edit" class="btn btn-small btn-ghost">Edit</button>
+              <button id="ai-copy" class="btn btn-small btn-ghost">Copy</button>
+            </div>
+            <article id="ai-view" class="prose"></article>
+            <textarea id="ai-edit-input" class="notes-input" hidden></textarea>
+            <div id="ai-empty" class="ai-empty" hidden>
+              <p>No AI notes yet.</p>
+              <p class="muted">Record the meeting (or write some notes), then choose a template and press <strong>Generate notes</strong>.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transcript drawer -->
+        <aside id="transcript" class="transcript" hidden>
+          <header>
+            <strong>Transcript</strong>
+            <span id="pending" class="muted small"></span>
+            <span class="spacer"></span>
+            <button id="close-transcript" class="icon-btn" title="Close">
+              <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+          </header>
+          <div id="transcript-list" class="transcript-list"></div>
+        </aside>
+      </section>
+
+      <!-- Chat panel -->
+      <section id="chat" class="chat" hidden>
+        <header>
+          <strong id="chat-title">Ask</strong>
+          <span class="spacer"></span>
+          <button id="chat-clear" class="btn btn-small btn-ghost">Clear</button>
+          <button id="chat-close" class="icon-btn" title="Close">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </header>
+        <div id="chat-log" class="chat-log"></div>
+        <form id="chat-form" class="ask chat-ask">
+          <input id="chat-input" placeholder="Ask a follow-up…" autocomplete="off" />
+          <button class="icon-btn" title="Send" type="submit">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M4 10h11M11 5.5 15.5 10 11 14.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+      </section>
+
+      <dialog id="confirm" class="modal confirm">
+        <form method="dialog">
+          <div class="modal-body"><p id="confirm-msg"></p></div>
+          <footer class="modal-foot">
+            <span class="spacer"></span>
+            <button class="btn btn-ghost" value="cancel">Cancel</button>
+            <button id="confirm-ok" class="btn btn-primary" value="ok">OK</button>
+          </footer>
+        </form>
+      </dialog>
+
+      <!-- Dock -->
+      <footer id="dock" class="dock" hidden>
+        <div class="dock-group">
+          <button id="rec-btn" class="btn btn-record">
+            <span class="rec-dot" aria-hidden="true"></span><span id="rec-label">Record</span>
+          </button>
+          <div id="rec-info" class="rec-info" hidden>
+            <span id="rec-time" class="rec-time">00:00</span>
+            <div class="meters" title="Input levels">
+              <div class="meter"><span>Me</span><i><b id="lvl-me"></b></i></div>
+              <div class="meter"><span>Them</span><i><b id="lvl-them"></b></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="dock-sep"></div>
+        <div class="dock-group">
+          <select id="template" title="Notes template"></select>
+          <button id="enhance-btn" class="btn btn-primary" title="Generate notes (Ctrl+Enter)">
+            <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><path d="M10 2.5l1.6 4.4 4.4 1.6-4.4 1.6L10 14.5l-1.6-4.4L4 8.5l4.4-1.6zM15.5 13l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" fill="currentColor"/></svg>
+            <span>Generate notes</span>
+          </button>
+        </div>
+        <div class="dock-sep"></div>
+        <form id="ask-form" class="ask">
+          <input id="ask-input" placeholder="Ask about this meeting…" autocomplete="off" />
+          <button class="icon-btn" title="Ask" type="submit">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M4 10h11M11 5.5 15.5 10 11 14.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Settings -->
+  <dialog id="settings" class="modal">
+    <form method="dialog" id="settings-form">
+      <header class="modal-head">
+        <h2>Settings</h2>
+        <button class="icon-btn" value="cancel" title="Close">
+          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+      <div class="modal-body">
+        <section class="set-section">
+          <h3>OpenAI</h3>
+          <div class="field">
+            <label for="api-key">API key</label>
+            <div class="row">
+              <input id="api-key" type="password" placeholder="sk-…" autocomplete="off" spellcheck="false" />
+              <button type="button" id="save-key" class="btn btn-small">Save key</button>
+              <button type="button" id="remove-key" class="btn btn-small btn-ghost">Remove</button>
+            </div>
+            <p id="key-status" class="help"></p>
+          </div>
+          <div class="grid2">
+            <div class="field">
+              <label for="s-chat-model">Notes &amp; chat model</label>
+              <input id="s-chat-model" list="chat-models" spellcheck="false" />
+              <datalist id="chat-models">
+                <option value="gpt-4.1"></option><option value="gpt-4.1-mini"></option>
+                <option value="gpt-5"></option><option value="gpt-5-mini"></option><option value="gpt-4o"></option>
+              </datalist>
+            </div>
+            <div class="field">
+              <label for="s-tr-model">Transcription model</label>
+              <input id="s-tr-model" list="tr-models" spellcheck="false" />
+              <datalist id="tr-models">
+                <option value="gpt-4o-transcribe"></option><option value="gpt-4o-mini-transcribe"></option><option value="whisper-1"></option>
+              </datalist>
+            </div>
+            <div class="field">
+              <label for="s-base-url">API base URL</label>
+              <input id="s-base-url" spellcheck="false" />
+              <p class="help">Any OpenAI-compatible server works.</p>
+            </div>
+            <div class="field">
+              <label for="s-language">Spoken language</label>
+              <input id="s-language" placeholder="Auto-detect (or e.g. en, de, fr)" spellcheck="false" maxlength="5" />
+            </div>
+          </div>
+          <div class="row">
+            <button type="button" id="test-conn" class="btn btn-small">Test connection</button>
+            <span id="test-result" class="help"></span>
+          </div>
+        </section>
+
+        <section class="set-section">
+          <h3>Audio</h3>
+          <div class="grid2">
+            <div class="field">
+              <label for="s-mic">Microphone</label>
+              <select id="s-mic"></select>
+            </div>
+            <div class="field">
+              <label for="s-chunk">Transcription chunk length</label>
+              <select id="s-chunk">
+                <option value="10">10 s — fastest updates</option>
+                <option value="20">20 s — balanced</option>
+                <option value="30">30 s</option>
+                <option value="60">60 s — fewest requests</option>
+              </select>
+            </div>
+          </div>
+          <label class="check">
+            <input type="checkbox" id="s-system" />
+            <span>Capture computer audio (other people on the call)</span>
+          </label>
+          <p id="system-help" class="help"></p>
+          <div class="grid2">
+            <div class="field">
+              <label for="s-me">Your label in transcripts</label>
+              <input id="s-me" />
+            </div>
+            <div class="field">
+              <label for="s-them">Label for computer audio</label>
+              <input id="s-them" />
+            </div>
+          </div>
+        </section>
+
+        <section class="set-section">
+          <h3>Notes</h3>
+          <div class="field">
+            <label for="s-dir">Notes folder</label>
+            <div class="row">
+              <input id="s-dir" spellcheck="false" />
+              <button type="button" id="s-open-dir" class="btn btn-small btn-ghost">Open</button>
+            </div>
+            <p class="help">Each meeting is one markdown file here. Point it at an Obsidian vault or a synced folder if you like.</p>
+          </div>
+          <div class="grid2">
+            <div class="field">
+              <label for="s-template">Default template</label>
+              <select id="s-template"></select>
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button type="button" id="s-open-templates" class="btn btn-small btn-ghost">Edit templates (markdown files)</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="s-custom">Extra instructions for AI notes</label>
+            <textarea id="s-custom" rows="3" placeholder="e.g. Write in British English. Always list action items with owners."></textarea>
+          </div>
+        </section>
+      </div>
+      <footer class="modal-foot">
+        <span id="settings-error" class="error"></span>
+        <span class="spacer"></span>
+        <button class="btn btn-ghost" value="cancel">Cancel</button>
+        <button id="settings-save" class="btn btn-primary" value="default">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script src="main.js"></script>
+</body>
+</html>
